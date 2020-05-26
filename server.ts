@@ -111,10 +111,15 @@ app.post("/v1/games/:id/join", (req: any, res: any) => {
             });
             res.status(300).send(updatedGame);
         } else if(game.secondPlayer === null) {
-            updatedGame = Object.assign(game, {
-                secondPlayer: playerName
-            });
-            res.status(300).send(updatedGame);
+            // Make sure the name is not the same as the first player name to avoid duplicate names.
+            if(game.firstPlayer === playerName) {
+                res.status(404).send({error: "The provided name is already in use"});
+            } else {
+                updatedGame = Object.assign(game, {
+                    secondPlayer: playerName
+                });
+                res.status(300).send(updatedGame);
+            }
         } else {
             res.status(404).send({error: "The game is already full"});
         }
