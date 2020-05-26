@@ -8,7 +8,7 @@
     "compile": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Tobias Nyström",
   "license": "ISC",
   "dependencies": {
     "@types/express": "^4.17.6",

@@ -8,11 +8,20 @@ require('dotenv').config()
 // General constants
 const app: express.Application = express();
 
-// Global games state variable
-let games = [];
+// Game type interface
+interface Game {
+    id: string;
+    firstMove: string;
+    secondMove: string;
+    result: string;
+}
 
-app.get("/v1/game", (req: any, res: any) => {
-    res.send("Hello World!");
+// Global games state variable
+let games: Array<Game> = [{id: "1", firstMove: "null", secondMove: "null", result: "null"}];
+
+// API handlers 
+app.get("/v1/games", (req: any, res: any) => {
+    res.json(games);
 });
 
 app.get("/v1/game/:id", (req: any, res: any) => {
