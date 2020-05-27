@@ -17,11 +17,14 @@ Use Postman or any other API client to test the routes defined below.
 ### GET /v1/games
 Retrieves a list of all current (in memory) games.
 
-### GET /v1/games/:id
+### GET /v1/games/{id}
 Retrieves data about a game by ID.
 
-### POST /v1/game/create
+### POST /v1/games/create
 Creates a game state, storing it in memory and returns a game ID.
 
-### /v1/games
-Retrieves a list of all current (in memory) games.
+### POST /v1/games/{id}/join
+Joins the provided game by ID and player name.
+
+### POST /v1/games/{id}/move
+Performs a move on the provided game by ID.

@@ -16,8 +16,8 @@ interface Game {
     id: string | null;
     firstPlayer?: string | null;
     secondPlayer?: string | null;
-    firstMove?: string | null;
-    secondMove?: string | null;
+    firstPlayerMove?: string | null;
+    secondPlayerMove?: string | null;
     result?: string | null;
 }
 
@@ -39,8 +39,36 @@ function findGameByID(id: string): Game {
     return {id: null}
 }
 
-function updateGame(game: Game, object: any): void {
+function calculateGameResult(game: Game): string {
+    if(game.firstPlayerMove === game.secondPlayerMove) {
+        return "The game is a draw!"
+    }
 
+    if(game.firstPlayerMove === "rock") {
+        if(game.secondPlayerMove === "scissors") {
+            return "Player one won!"
+        } else {
+            return "Player two won!"
+        }
+    }
+
+    if(game.firstPlayerMove === "paper") {
+        if(game.secondPlayerMove === "rock") {
+            return "Player one won!"
+        } else {
+            return "Player two won!"
+        }
+    }
+
+    if(game.firstPlayerMove === "scissors") {
+        if(game.secondPlayerMove === "paper") {
+            return "Player one won!"
+        } else {
+            return "Player two won!"
+        }
+    }
+
+    return "The result could not be established.";
 }
 
 // API handlers 
@@ -62,14 +90,15 @@ app.get("/v1/games/:id", (req: any, res: any) => {
     }
 });
 
-app.post("/v1/game/create", (req: any, res: any) => {
+// Create a game
+app.post("/v1/games/create", (req: any, res: any) => {
     // Create game state and push to array
     let gameObject: Game = {
         id: uuidv4(),
         firstPlayer: null,
         secondPlayer: null,
-        firstMove: null,
-        secondMove: null,
+        firstPlayerMove: null,
+        secondPlayerMove: null,
         result: null,
     }
 
@@ -92,8 +121,6 @@ app.post("/v1/games/:id/join", (req: any, res: any) => {
         // Create a new game variable to replace data.
         let updatedGame: object;
 
-        console.log("REQ BODY", req.body)
-
         // Get the player name provided
         let playerName: string = req.body.name;
 
@@ -101,8 +128,6 @@ app.post("/v1/games/:id/join", (req: any, res: any) => {
         if(!req.body.name) {
             res.status(400).send({error: "No data for player name was found in the body"})
         }
-
-        console.log("PLAYER NAME", playerName);
 
         // Check if the first player is null, if it is then take that spot as a player.
         if(game.firstPlayer === null) {
@@ -122,6 +147,82 @@ app.post("/v1/games/:id/join", (req: any, res: any) => {
             }
         } else {
             res.status(404).send({error: "The game is already full"});
+        }
+    }
+});
+
+// Make a move for a specific game
+app.post("/v1/games/:id/move", (req: any, res: any) => {
+    // Find the game.
+    let game: Game = findGameByID(req.params.id);
+
+    // Send proper status if the game is not found.
+    if(game.id === null) {
+        res.status(404).send({error: `No game was found using the provided ID: ${req.params.id}`});
+    } else {
+        // Create a new game variable to replace data.
+        let updatedGame: object;
+
+        // Get the data provided
+        let playerName: string = req.body.name;
+        let playerMove: string = req.body.move;
+
+        // Make sure the game is full
+        if(!(game.firstPlayer && game.secondPlayer)) {
+            res.status(400).send({error: "The game is not full"})
+        }
+
+        // Make sure the name is not empty
+        if(!req.body.name) {
+            res.status(400).send({error: "No data for player name was found in the body"})
+        }
+
+        // Make sure the move is valid
+        if(!(req.body.move === "rock") && !(req.body.move === "paper") && !(req.body.move === "scissors")) {
+            res.status(400).send({error: "The data provided for move is not valid"});
+        }
+
+        // Find the correct name in the game
+        if(game.firstPlayer === playerName) {
+            if(game.firstPlayerMove === null) {
+                updatedGame = Object.assign(game, {
+                    firstPlayerMove: playerMove
+                });
+
+                // Check if both results are in, if they are we calculate the result
+                if(game.firstPlayerMove && game.secondPlayerMove) {
+                    let result = calculateGameResult(game);
+                    updatedGame = Object.assign(game, {
+                        result: result
+                    });
+                }
+                
+                // Send the updated game to the user
+                res.status(300).send(updatedGame);
+            } else {
+                res.status(400).send({error: "A move by this player has already been made or the game is finished"})
+            }
+        } else if(game.secondPlayer === playerName) {
+            if(game.secondPlayerMove === null) {
+                updatedGame = Object.assign(game, {
+                    secondPlayerMove: playerMove
+                });
+
+                // Check if both results are in, if they are we calculate the result
+                if(game.firstPlayerMove && game.secondPlayerMove) {
+                    let result = calculateGameResult(game);
+                    updatedGame = Object.assign(game, {
+                        result: result
+                    });
+                }
+                
+                // Send the updated game to the user
+                res.status(300).send(updatedGame);
+            } else {
+                res.status(400).send({error: "A move by this player has already been made or the game is finished"})
+            }
+        } else {
+            res.status(400).send({error: `There is no player named '${playerName}' in this game`})
         }
     }
 });
