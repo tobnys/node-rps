@@ -41,7 +41,7 @@ function findGameByID(id: string): Game {
 
 function calculateGameResult(game: Game): string {
     if(game.firstPlayerMove === game.secondPlayerMove) {
-        return "The game is a draw!"
+        return "draw"
     }
 
     if(game.firstPlayerMove === "rock") {
@@ -192,9 +192,21 @@ app.post("/v1/games/:id/move", (req: any, res: any) => {
                 // Check if both results are in, if they are we calculate the result
                 if(game.firstPlayerMove && game.secondPlayerMove) {
                     let result = calculateGameResult(game);
-                    updatedGame = Object.assign(game, {
-                        result: result
-                    });
+                    
+                    // If the result is a draw, we restart the game, if not, we present the result.
+                    if(result === "draw") {
+                        updatedGame = Object.assign(game, {
+                            firstPlayerMove: null,
+                            secondPlayerMove: null,
+                            result: "The previous game was a draw! A new game has been created."
+                        });
+                    } else {
+                        updatedGame = Object.assign(game, {
+                            result: result
+                        });
+                    }
+
+                    
                 }
                 
                 // Send the updated game to the user
@@ -211,9 +223,19 @@ app.post("/v1/games/:id/move", (req: any, res: any) => {
                 // Check if both results are in, if they are we calculate the result
                 if(game.firstPlayerMove && game.secondPlayerMove) {
                     let result = calculateGameResult(game);
-                    updatedGame = Object.assign(game, {
-                        result: result
-                    });
+                    
+                    // If the result is a draw, we restart the game, if not, we present the result.
+                    if(result === "draw") {
+                        updatedGame = Object.assign(game, {
+                            firstPlayerMove: null,
+                            secondPlayerMove: null,
+                            result: "The previous game was a draw! A new game has been created."
+                        });
+                    } else {
+                        updatedGame = Object.assign(game, {
+                            result: result
+                        });
+                    }
                 }
                 
                 // Send the updated game to the user
