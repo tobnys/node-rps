@@ -29,7 +29,6 @@ function findGameByID(id: string): Game {
     // Traverse and find the correct game by ID
     // O(n) - Simple linear traversal
     for(let i=0; i<games.length; i++) {
-        console.log("GAME TRAVERSE", games[i])
         if(games[i].id === id) {
             return games[i];
         }
@@ -118,6 +117,7 @@ app.post("/v1/games/:id/join", (req: any, res: any) => {
     if(game.id === null) {
         res.status(404).send({error: `No game was found using the provided ID: ${req.params.id}`});
     } else {
+
         // Create a new game variable to replace data.
         let updatedGame: object;
 
@@ -136,6 +136,7 @@ app.post("/v1/games/:id/join", (req: any, res: any) => {
             });
             res.status(300).send(updatedGame);
         } else if(game.secondPlayer === null) {
+
             // Make sure the name is not the same as the first player name to avoid duplicate names.
             if(game.firstPlayer === playerName) {
                 res.status(404).send({error: "The provided name is already in use"});
@@ -160,6 +161,7 @@ app.post("/v1/games/:id/move", (req: any, res: any) => {
     if(game.id === null) {
         res.status(404).send({error: `No game was found using the provided ID: ${req.params.id}`});
     } else {
+
         // Create a new game variable to replace data.
         let updatedGame: object;
 
